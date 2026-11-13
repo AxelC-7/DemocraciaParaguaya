@@ -29,6 +29,12 @@ class ScrapingServiceGroundingTest {
                       {"web": {"title": "Fuente B", "uri": "https://example.com/b"}},
                       {"web": {"title": "URL insegura", "uri": "javascript:alert(1)"}}
                     ],
+                    "groundingSupports": [
+                      {
+                        "segment": {"text": "El candidato ocupó un cargo público."},
+                        "groundingChunkIndices": [1]
+                      }
+                    ],
                     "searchEntryPoint": {
                       "renderedContent": "<div>Search suggestions</div>"
                     }
@@ -44,6 +50,9 @@ class ScrapingServiceGroundingTest {
         assertEquals(2, candidato.getFuentes().size());
         assertEquals("Fuente A", candidato.getFuentes().get(0).getTitulo());
         assertEquals("https://example.com/a", candidato.getFuentes().get(0).getUrl());
+        assertEquals(1, candidato.getCitas().size());
+        assertEquals("El candidato ocupó un cargo público.", candidato.getCitas().get(0).getTexto());
+        assertEquals("https://example.com/b", candidato.getCitas().get(0).getFuentes().get(0).getUrl());
         assertEquals("<div>Search suggestions</div>", candidato.getSearchEntryPointHtml());
     }
 
@@ -57,6 +66,8 @@ class ScrapingServiceGroundingTest {
 
         assertNotNull(candidato.getFuentes());
         assertTrue(candidato.getFuentes().isEmpty());
+        assertNotNull(candidato.getCitas());
+        assertTrue(candidato.getCitas().isEmpty());
         assertNull(candidato.getSearchEntryPointHtml());
     }
 }
