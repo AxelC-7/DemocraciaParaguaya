@@ -87,14 +87,27 @@ public class ScrapingService {
         String ultimoError = "No se encontraron modelos disponibles.";
         for (String modelo : modelos) {
             String url = "https://generativelanguage.googleapis.com/v1beta/models/" + modelo + ":generateContent";
+            System.out.println("\\n========== DIAGNÓSTICO GEMINI: SOLICITUD ==========");
+            System.out.println("Modelo seleccionado: " + modelo);
+            System.out.println("URL completa: " + url);
+            System.out.println("Método HTTP: POST");
+            System.out.println("Content-Type: application/json");
+            System.out.println("Header x-goog-api-key: [REDACTADA]");
+            System.out.println("Google Search Grounding habilitado: true");
+            System.out.println("Longitud del prompt: " + prompt.length() + " caracteres");
             try {
-                return ejecutarPeticionGemini(url, prompt);
-            } catch (HttpClientErrorException e) {
+                Candidato resultado = ejecutarPeticionGemini(url, prompt, modelo);
+                System.out.println("Resultado: solicitud procesada correctamente con " + modelo);
+                return resultado;
+            } catch (HttpStatusCodeException e) {
                 ultimoError = e.getStatusCode() + " en " + modelo;
+                System.err.println("HTTP status: " + e.getStatusCode());
+                System.err.println("Respuesta de error de Google: " + e.getResponseBodyAsString());
                 System.err.println("Falló " + ultimoError + ". Probando siguiente modelo...");
             } catch (Exception e) {
                 ultimoError = e.getMessage() == null ? "Error inesperado" : e.getMessage();
                 System.err.println("Error con " + modelo + ": " + ultimoError);
+                e.printStackTrace(System.err);
             }
         }
 
