@@ -56,6 +56,7 @@ En Windows utiliza `.\\mvnw.cmd test`.
 src/
   main/
     java/com/demopy/
+      automation/  # Utilidades de automatización con Selenium
       controller/   # Endpoints web y API
       model/        # Modelos de dominio
       scraper/      # Extracción de información
