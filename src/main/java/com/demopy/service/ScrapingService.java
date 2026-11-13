@@ -1,6 +1,7 @@
 package com.demopy.service;
 
 import com.demopy.model.Candidato;
+import com.demopy.model.CitaFuente;
 import com.demopy.model.Fuente;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -133,6 +134,7 @@ public class ScrapingService {
     void aplicarMetadatosDeFuentes(Candidato candidato, JsonNode candidate) {
         JsonNode metadata = candidate.path("groundingMetadata");
         JsonNode chunks = metadata.path("groundingChunks");
+        List<Fuente> fuentes = new ArrayList<>();
         Map<String, Fuente> fuentesUnicas = new LinkedHashMap<>();
 
         if (chunks.isArray()) {
@@ -146,7 +148,35 @@ public class ScrapingService {
                 }
             }
         }
-        candidato.setFuentes(new ArrayList<>(fuentesUnicas.values()));
+        fuentes.addAll(fuentesUnicas.values());
+        candidato.setFuentes(fuentes);
+
+        List<CitaFuente> citas = new ArrayList<>();
+        JsonNode supports = metadata.path("groundingSupports");
+        if (supports.isArray()) {
+            for (JsonNode support : supports) {
+                String texto = support.path("segment").path("text").asText("");
+                JsonNode indices = support.path("groundingChunkIndices");
+                if (texto.isBlank() || !indices.isArray()) continue;
+
+                List<Fuente> fuentesCita = new ArrayList<>();
+                for (JsonNode indexNode : indices) {
+                    int index = indexNode.asInt(-1);
+                    if (index >= 0 && index < chunks.size()) {
+                        JsonNode web = chunks.get(index).path("web");
+                        String url = web.path("uri").asText("");
+                        String titulo = web.path("title").asText("");
+                        if (url.startsWith("https://") || url.startsWith("http://")) {
+                            fuentesCita.add(new Fuente(titulo.isBlank() ? url : titulo, url));
+                        }
+                    }
+                }
+                if (!fuentesCita.isEmpty()) {
+                    citas.add(new CitaFuente(texto, fuentesCita));
+                }
+            }
+        }
+        candidato.setCitas(citas);
 
         String searchSuggestions = metadata.path("searchEntryPoint")
                 .path("renderedContent").asText(null);
