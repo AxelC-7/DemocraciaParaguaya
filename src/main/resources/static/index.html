@@ -43,7 +43,7 @@
                             <span className="text-3xl">🇵🇾</span>
                             <h1 className="text-4xl font-extrabold text-red-500 tracking-tight">Democracia Paraguaya</h1>
                         </div>
-                        <p className="text-slate-400">Rastreo Integral con IA: Docencia, Prensa y Análisis de Comentarios en Redes</p>
+                        <p className="text-slate-400">Consulta asistida por IA de información pública. Verifica las fuentes antes de sacar conclusiones.</p>
                     </header>
 
                     <div className="bg-slate-800 p-6 rounded-xl shadow-xl mb-8 border border-slate-700">
@@ -87,7 +87,7 @@
                             {/* Sección de Clasificación de Sentimientos */}
                             {candidato.desgloseSentimiento && (
                                 <div>
-                                    <h3 className="text-lg font-semibold text-slate-200 mb-3">Clasificación de Comentarios en Redes</h3>
+                                    <h3 className="text-lg font-semibold text-slate-200 mb-3">Indicadores de sentimiento (no estadísticos)</h3>
                                     <div className="grid md:grid-cols-3 gap-4">
                                         <div className="bg-emerald-950/40 border border-emerald-800 p-4 rounded-lg">
                                             <span className="text-emerald-400 font-bold text-sm block mb-1">👍 Comentarios Positivos</span>
@@ -107,7 +107,7 @@
 
                             <div className="grid md:grid-cols-2 gap-6 pt-2">
                                 <div className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
-                                    <h3 className="text-lg font-semibold text-red-400 mb-3">Prensa, Docencia y Registro</h3>
+                                    <h3 className="text-lg font-semibold text-red-400 mb-3">Información mencionada por la IA</h3>
                                     <ul className="space-y-2.5">
                                         {candidato.noticias.map((noticia, index) => (
                                             <li key={index} className="text-slate-300 text-sm flex items-start gap-2">
@@ -118,7 +118,7 @@
                                 </div>
 
                                 <div className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
-                                    <h3 className="text-lg font-semibold text-blue-400 mb-3">Citas de Instagram y Redes</h3>
+                                    <h3 className="text-lg font-semibold text-blue-400 mb-3">Referencias sobre redes sociales</h3>
                                     <ul className="space-y-2.5">
                                         {candidato.redesSociales.map((red, index) => (
                                             <li key={index} className="text-slate-300 text-sm flex items-start gap-2">
