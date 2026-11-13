@@ -130,13 +130,15 @@ src/
 │       └── candidatos.json
 └── test/
     └── java/com/demopy/
-        └── DemopyApplicationTests.java
+        ├── DemopyApplicationTests.java
+        └── service/
+            └── ScrapingServiceGroundingTest.java
 ~~~
 
 ### Responsabilidades principales
 
 - controller/: endpoints HTTP y entrega de la interfaz.
-- model/: modelo de datos del candidato.
+- model/: modelo del candidato, fuentes web y citas asociadas a fragmentos respaldados.
 - scraper/: extracción HTML; el scraper actual consulta resultados HTML de DuckDuckGo, no Google News.
 - service/: lógica de aplicación e integración con Gemini, Cloudflare y Telegram.
 - resources/static/: interfaz web servida por Spring Boot.
@@ -144,7 +146,7 @@ src/
 ## Limitaciones funcionales conocidas
 
 - ScrapingService utiliza Gemini con Google Search Grounding. Cuando Google devuelve metadatos de fundamentación, la API conserva los enlaces y títulos de las fuentes y la interfaz los muestra.
-- La interfaz también presenta el bloque de sugerencias de búsqueda de Google cuando viene incluido en la respuesta.
+- La interfaz muestra las afirmaciones vinculadas a sus fuentes, el listado agregado de fuentes y el bloque de sugerencias de búsqueda de Google cuando viene incluido en la respuesta.
 - La presencia de fuentes depende de que Gemini devuelva groundingMetadata; una respuesta sin esos metadatos no debe considerarse respaldada por fuentes.
 - No hay integración que recolecte comentarios reales de Instagram, Facebook o X. La aplicación indica que no evalúa sentimiento ni calcula porcentajes.
 - GoogleNewsScraper no está conectado al flujo principal de investigación y actualmente consulta resultados HTML de DuckDuckGo.
