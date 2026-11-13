@@ -2,11 +2,11 @@ package com.demopy.controller;
 
 import com.demopy.model.Candidato;
 import com.demopy.service.CandidatoService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*") // Permite peticiones desde cualquier origen local
 public class CandidatoController {
 
     private final CandidatoService candidatoService;
@@ -16,8 +16,15 @@ public class CandidatoController {
     }
 
     @GetMapping("/candidatos/buscar")
-    public Candidato buscarCandidatoPorInstagram(@RequestParam String nombre) {
-        // Recibe el parámetro desde la URL, ej: /api/candidatos/buscar?nombre=presidente_bcp_2026
-        return candidatoService.procesarBusquedaConIA(nombre);
+    public ResponseEntity<Candidato> buscarCandidatoPorInstagram(
+            @RequestParam(name = "nombre") String nombre) {
+
+        if (nombre == null || nombre.isBlank() || nombre.length() > 150) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(
+                candidatoService.procesarBusquedaConIA(nombre.trim())
+        );
     }
 }
