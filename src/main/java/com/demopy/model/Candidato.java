@@ -12,6 +12,7 @@ public class Candidato {
     private String sentimientoGeneral;
     private Map<String, String> desgloseSentimiento;
     private List<Fuente> fuentes;
+    private List<CitaFuente> citas;
     private String searchEntryPointHtml;
 
     public Candidato() {}
@@ -27,6 +28,7 @@ public class Candidato {
         this.sentimientoGeneral = sentimientoGeneral;
         this.desgloseSentimiento = desgloseSentimiento;
         this.fuentes = List.of();
+        this.citas = List.of();
     }
 
     public String getId() { return id; }
@@ -45,6 +47,8 @@ public class Candidato {
     public void setDesgloseSentimiento(Map<String, String> desgloseSentimiento) { this.desgloseSentimiento = desgloseSentimiento; }
     public List<Fuente> getFuentes() { return fuentes; }
     public void setFuentes(List<Fuente> fuentes) { this.fuentes = fuentes; }
+    public List<CitaFuente> getCitas() { return citas; }
+    public void setCitas(List<CitaFuente> citas) { this.citas = citas; }
     public String getSearchEntryPointHtml() { return searchEntryPointHtml; }
     public void setSearchEntryPointHtml(String searchEntryPointHtml) { this.searchEntryPointHtml = searchEntryPointHtml; }
 }
