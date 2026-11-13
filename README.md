@@ -1,76 +1,158 @@
 # Democracia Paraguaya
 
-Aplicación web basada en Spring Boot para consultar y analizar información pública sobre figuras y candidatos.
+Aplicación web basada en Spring Boot para consultar y analizar información pública sobre figuras y candidatos de Paraguay.
+
+> **Estado del proyecto:** en desarrollo. El análisis con Gemini todavía no cuenta con un flujo completo de búsqueda y verificación de fuentes. La aplicación no realiza actualmente una extracción real de comentarios de Instagram, Facebook o X. No interpretes los resultados generados por IA como hechos verificados.
+
+## Tecnologías
+
+- Java 17
+- Spring Boot 3.2.5
+- Maven (se incluye Maven Wrapper)
+- React 18 mediante CDN y Babel Standalone
+- Jsoup para extracción HTML
+- Selenium para automatización web
+- Google Gemini API para generación de análisis
+- Cloudflare Tunnel para publicar temporalmente el servidor
+- Telegram Bot API para notificar cambios de URL
 
 ## Requisitos
 
-- Java 17
-- Maven (o el Maven Wrapper incluido)
-- Credenciales de Google Gemini si se utiliza el análisis con IA
-- Credenciales de Telegram si se desean recibir notificaciones del túnel
-- Cloudflared instalado y accesible desde PATH, o configurar su ruta absoluta
+- JDK 17.
+- Conexión a Internet para descargar dependencias y utilizar servicios externos.
+- Una clave de Google Gemini para ejecutar consultas de investigación con IA.
+- Cloudflared instalado y disponible en PATH si se habilita el túnel.
+- Token y chat ID de Telegram si se desean notificaciones.
 
 ## Configuración
 
-1. Copia `.env.example` a un archivo `.env` (no lo subas al repositorio).
-2. Completa las variables necesarias.
-3. Exporta esas variables en el entorno desde el que ejecutarás la aplicación. Spring Boot no carga automáticamente archivos `.env`.
+La aplicación lee la configuración desde variables de entorno y src/main/resources/application.properties.
 
-Variables disponibles:
+1. Copia .env.example como referencia para tus variables.
+2. Define las variables en el entorno desde el que ejecutarás Spring Boot.
+3. No subas archivos .env, claves ni tokens al repositorio.
 
-- `GEMINI_API_KEY`
-- `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_CHAT_ID`
-- `CLOUDFLARE_EXECUTABLE`
-- `CLOUDFLARE_ORIGIN`
+**Importante:** Spring Boot no carga archivos .env automáticamente. La plantilla sirve como referencia; debes exportar las variables o configurarlas en tu IDE.
 
-En Windows PowerShell puedes definirlas para la sesión actual con `$env:NOMBRE="valor"`.
+### Variables disponibles
+
+| Variable | Obligatoria | Descripción |
+|---|---:|---|
+| GEMINI_API_KEY | Para investigar | Clave de Google Gemini |
+| CLOUDFLARE_ENABLED | No | Activa el túnel; por defecto false |
+| CLOUDFLARE_EXECUTABLE | Si se activa Cloudflare | Ruta o nombre del ejecutable; por defecto cloudflared |
+| CLOUDFLARE_ORIGIN | Si se activa Cloudflare | Servicio local publicado; por defecto http://127.0.0.1:8080 |
+| TELEGRAM_BOT_TOKEN | No | Token del bot de Telegram |
+| TELEGRAM_CHAT_ID | No | Chat que recibirá las notificaciones |
+
+Las integraciones Cloudflare y Telegram son opcionales. Sin las credenciales de Telegram, la aplicación omite el envío de notificaciones. Sin Cloudflare habilitado, Spring Boot no inicia el proceso del túnel.
+
+### Windows PowerShell
+
+Define las variables en la misma ventana donde ejecutarás la aplicación:
+
+~~~powershell
+$env:GEMINI_API_KEY = "tu_clave"
+$env:CLOUDFLARE_ENABLED = "false"
+$env:CLOUDFLARE_EXECUTABLE = "cloudflared"
+$env:CLOUDFLARE_ORIGIN = "http://127.0.0.1:8080"
+$env:TELEGRAM_BOT_TOKEN = ""
+$env:TELEGRAM_CHAT_ID = ""
+~~~
+
+Para habilitar Cloudflare:
+
+~~~powershell
+$env:CLOUDFLARE_ENABLED = "true"
+~~~
+
+Si cloudflared.exe no está en PATH, asigna su ruta completa a CLOUDFLARE_EXECUTABLE.
+
+### IntelliJ IDEA
+
+En **Run → Edit Configurations → Environment variables**, define las mismas variables para la configuración de ejecución.
 
 ## Ejecutar
 
-En Windows:
+Windows:
 
-```powershell
-.\\mvnw.cmd spring-boot:run
-```
+~~~powershell
+.\mvnw.cmd spring-boot:run
+~~~
 
-En Linux/macOS:
+Linux/macOS:
 
-```bash
+~~~bash
 ./mvnw spring-boot:run
-```
+~~~
 
-La aplicación escucha por defecto en el puerto `8080`.
+La aplicación escucha por defecto en http://localhost:8080.
 
 ## Pruebas
 
-```bash
-./mvnw test
-```
+Windows:
 
-En Windows utiliza `.\\mvnw.cmd test`.
+~~~powershell
+.\mvnw.cmd clean test
+~~~
+
+Linux/macOS:
+
+~~~bash
+./mvnw clean test
+~~~
 
 ## Estructura actual
 
-```
-src/
-  main/
-    java/com/demopy/
-      automation/  # Utilidades de automatización con Selenium
-      controller/   # Endpoints web y API
-      model/        # Modelos de dominio
-      scraper/      # Extracción de información
-      service/      # Lógica de aplicación e integraciones
-    resources/
-      static/       # Interfaz web
-      application.properties
-      candidatos.json
-  test/
-    java/com/demopy/
-```
+La siguiente estructura corresponde a los directorios y clases actualmente publicados:
 
-El paquete raíz `com.demopy` se mantiene para evitar una migración masiva de paquetes sin necesidad funcional. Los siguientes cambios de organización deben hacerse tras revisar las referencias y responsabilidades de cada clase.
+~~~text
+src/
+├── main/
+│   ├── java/com/demopy/
+│   │   ├── DemopyApplication.java
+│   │   ├── controller/
+│   │   │   ├── CandidatoController.java
+│   │   │   └── WebController.java
+│   │   ├── model/
+│   │   │   └── Candidato.java
+│   │   ├── scraper/
+│   │   │   └── GoogleNewsScraper.java
+│   │   └── service/
+│   │       ├── CandidatoService.java
+│   │       ├── CloudflareTunnelService.java
+│   │       ├── GeminiModelDiscoveryService.java
+│   │       ├── ScrapingService.java
+│   │       └── TelegramNotificationService.java
+│   └── resources/
+│       ├── static/index.html
+│       ├── application.properties
+│       └── candidatos.json
+└── test/
+    └── java/com/demopy/
+        └── DemopyApplicationTests.java
+~~~
+
+### Responsabilidades principales
+
+- controller/: endpoints HTTP y entrega de la interfaz.
+- model/: modelo de datos del candidato.
+- scraper/: extracción HTML; el scraper actual consulta resultados HTML de DuckDuckGo, no Google News.
+- service/: lógica de aplicación e integración con Gemini, Cloudflare y Telegram.
+- resources/static/: interfaz web servida por Spring Boot.
+
+## Limitaciones funcionales conocidas
+
+- ScrapingService actualmente solicita a Gemini un análisis en modo estándar; la integración de Google Search está desactivada en el código.
+- No hay integración implementada que recolecte comentarios reales de Instagram, Facebook o X.
+- GoogleNewsScraper no está conectado al flujo principal de investigación.
+- Los porcentajes y clasificaciones de sentimiento generados por el modelo no representan una encuesta ni una muestra estadística verificada.
+
+Estas limitaciones deben resolverse antes de presentar los resultados como investigación respaldada por fuentes.
 
 ## Seguridad
 
-No guardes tokens, claves API ni archivos `.env` en Git. Si una credencial se publicó alguna vez, revócala y genera una nueva: eliminarla del archivo no la elimina del historial de Git.
+- Nunca guardes claves API, tokens ni archivos .env en Git.
+- .env.example contiene únicamente nombres de variables y valores de ejemplo no sensibles.
+- Si una credencial fue publicada o compartida, revócala y genera una nueva. Eliminarla del archivo no la invalida ni la elimina del historial de Git.
+- No habilites el túnel público salvo que realmente necesites exponer la aplicación.
