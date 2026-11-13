@@ -31,7 +31,7 @@ En Windows PowerShell puedes definirlas para la sesión actual con `$env:NOMBRE=
 En Windows:
 
 ```powershell
-.`mvnw.cmd spring-boot:run
+.\\mvnw.cmd spring-boot:run
 ```
 
 En Linux/macOS:
@@ -48,7 +48,7 @@ La aplicación escucha por defecto en el puerto `8080`.
 ./mvnw test
 ```
 
-En Windows utiliza `.`mvnw.cmd test`.
+En Windows utiliza `.\\mvnw.cmd test`.
 
 ## Estructura actual
 
