@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -35,7 +35,16 @@ public class ScrapingService {
                     "La investigación con IA no está disponible: falta configurar GEMINI_API_KEY.");
         }
 
+        System.out.println("\n========== DIAGNÓSTICO GEMINI: CONFIGURACIÓN ==========");
+        System.out.println("Servicio: ScrapingService");
+        System.out.println("gemini.api.key configurada: " + (apiKey != null && !apiKey.isBlank()));
+        System.out.println("Longitud de API Key: " + (apiKey == null ? 0 : apiKey.length()));
+        System.out.println("API Key enviada en header x-goog-api-key: [REDACTADA]");
+        System.out.println("Candidato solicitado: " + nombreCandidato);
+
         List<String> modelos = modelDiscoveryService.obtenerModelosGenerativosDisponibles();
+        System.out.println("Cantidad de modelos disponibles detectados: " + modelos.size());
+        System.out.println("Lista de modelos que se intentarán: " + modelos);
         if (modelos.isEmpty()) {
             return construirError(nombreCandidato,
                     "No se encontraron modelos generativos disponibles para esta API key.");
@@ -93,7 +102,7 @@ public class ScrapingService {
                 "Se probaron " + modelos.size() + " modelos y todos fallaron. Último error: " + ultimoError);
     }
 
-    private Candidato ejecutarPeticionGemini(String url, String prompt) throws Exception {
+    private Candidato ejecutarPeticionGemini(String url, String prompt, String modelo) throws Exception {
         Map<String, Object> requestBody = Map.of(
                 "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))),
                 "tools", List.of(Map.of("google_search", Map.of()))
@@ -104,7 +113,10 @@ public class ScrapingService {
         headers.set("x-goog-api-key", apiKey);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
+        System.out.println("Cuerpo de solicitud (sin credenciales): " + objectMapper.writeValueAsString(requestBody));
         ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+        System.out.println("HTTP status de Gemini: " + response.getStatusCode());
+        System.out.println("Content-Type de respuesta: " + response.getHeaders().getContentType());
         JsonNode root = objectMapper.readTree(response.getBody());
         JsonNode candidate = root.path("candidates").path(0);
         JsonNode parts = candidate.path("content").path("parts");
