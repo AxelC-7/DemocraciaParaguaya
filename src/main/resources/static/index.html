@@ -105,6 +105,28 @@
                                 </div>
                             )}
 
+                            {candidato.citas && candidato.citas.length > 0 && (
+                                <section className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
+                                    <h3 className="text-lg font-semibold text-sky-400 mb-3">Afirmaciones vinculadas a sus fuentes</h3>
+                                    <ul className="space-y-3">
+                                        {candidato.citas.map((cita, index) => (
+                                            <li key={index} className="text-sm text-slate-300">
+                                                <p>{cita.texto}</p>
+                                                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                                                    {(cita.fuentes || []).map((fuente, sourceIndex) => (
+                                                        <a key={fuente.url || sourceIndex} href={fuente.url}
+                                                           target="_blank" rel="noopener noreferrer"
+                                                           className="text-xs text-sky-400 hover:text-sky-300 underline">
+                                                            {fuente.titulo || "Ver fuente"}
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </section>
+                            )}
+
                             {candidato.fuentes && candidato.fuentes.length > 0 && (
                                 <section className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
                                     <h3 className="text-lg font-semibold text-emerald-400 mb-3">Fuentes consultadas por Google Search</h3>
