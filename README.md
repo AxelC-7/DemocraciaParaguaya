@@ -143,12 +143,13 @@ src/
 
 ## Limitaciones funcionales conocidas
 
-- ScrapingService actualmente solicita a Gemini un análisis en modo estándar; la integración de Google Search está desactivada en el código.
-- No hay integración implementada que recolecte comentarios reales de Instagram, Facebook o X.
-- GoogleNewsScraper no está conectado al flujo principal de investigación.
-- Los porcentajes y clasificaciones de sentimiento generados por el modelo no representan una encuesta ni una muestra estadística verificada.
+- ScrapingService utiliza Gemini con Google Search Grounding. Cuando Google devuelve metadatos de fundamentación, la API conserva los enlaces y títulos de las fuentes y la interfaz los muestra.
+- La interfaz también presenta el bloque de sugerencias de búsqueda de Google cuando viene incluido en la respuesta.
+- La presencia de fuentes depende de que Gemini devuelva groundingMetadata; una respuesta sin esos metadatos no debe considerarse respaldada por fuentes.
+- No hay integración que recolecte comentarios reales de Instagram, Facebook o X. La aplicación indica que no evalúa sentimiento ni calcula porcentajes.
+- GoogleNewsScraper no está conectado al flujo principal de investigación y actualmente consulta resultados HTML de DuckDuckGo.
 
-Estas limitaciones deben resolverse antes de presentar los resultados como investigación respaldada por fuentes.
+Google Search Grounding mejora la trazabilidad, pero no garantiza que cada afirmación sea correcta. Revisa las fuentes originales, especialmente para acusaciones, procesos judiciales, cargos públicos y datos sensibles. El uso de búsqueda puede estar sujeto a cuotas y condiciones de facturación de Google.
 
 ## Seguridad
 
