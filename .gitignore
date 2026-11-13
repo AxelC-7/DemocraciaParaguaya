@@ -6,7 +6,6 @@ target/
 
 # Environment variables and secrets
 .env
-.env
 !.env
 *.pem
 *.key
@@ -38,3 +37,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+
