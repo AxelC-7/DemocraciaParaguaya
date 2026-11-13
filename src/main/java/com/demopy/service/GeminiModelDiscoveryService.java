@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class GeminiModelDiscoveryService {
 
-    @Value("\${gemini.api.key:}")
+    @Value("${gemini.api.key:}")
     private String apiKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
