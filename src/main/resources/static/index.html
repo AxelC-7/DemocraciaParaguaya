@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Democracia Paraguaya - Rastreo IA BCP 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        function App() {
+            const [nombre, setNombre] = React.useState("Jorge Schreiner");
+            const [candidato, setCandidato] = React.useState(null);
+            const [loading, setLoading] = React.useState(false);
+            const [error, setError] = React.useState(null);
+
+            const buscarCandidato = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError(null);
+                try {
+                    const response = await fetch(`/api/candidatos/buscar?nombre=${encodeURIComponent(nombre)}`);
+                    if (!response.ok) throw new Error("No se pudo conectar con el servidor.");
+                    const data = await response.json();
+                    setCandidato(data);
+                } catch (err) {
+                    setError(err.message);
+                    setCandidato(null);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="max-w-5xl mx-auto p-6">
+                    <header className="text-center my-8">
+                        <div className="flex justify-center items-center gap-2 mb-2">
+                            <span className="text-3xl">🇵🇾</span>
+                            <h1 className="text-4xl font-extrabold text-red-500 tracking-tight">Democracia Paraguaya</h1>
+                        </div>
+                        <p className="text-slate-400">Rastreo Integral con IA: Docencia, Prensa y Análisis de Comentarios en Redes</p>
+                    </header>
+
+                    <div className="bg-slate-800 p-6 rounded-xl shadow-xl mb-8 border border-slate-700">
+                        <form onSubmit={buscarCandidato} className="flex gap-4">
+                            <input 
+                                type="text" 
+                                value={nombre} 
+                                onChange={(e) => setNombre(e.target.value)}
+                                placeholder="Nombre de cualquier candidato o figura pública..."
+                                className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-red-500"
+                            />
+                            <button 
+                                type="submit"
+                                className="bg-red-600 hover:bg-red-500 text-white font-semibold px-6 py-3 rounded-lg transition shadow-md"
+                            >
+                                {loading ? "Analizando IA..." : "Rastrear Candidato"}
+                            </button>
+                        </form>
+                    </div>
+
+                    {error && (
+                        <div className="bg-red-900/40 border border-red-500 text-red-200 p-4 rounded-xl mb-6">
+                            {error}
+                        </div>
+                    )}
+
+                    {candidato && (
+                        <div className="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700 space-y-6">
+                            <div className="flex justify-between items-start border-b border-slate-700 pb-4">
+                                <div>
+                                    <h2 className="text-3xl font-bold text-white">{candidato.nombre}</h2>
+                                    <span className="text-sm bg-blue-900/60 text-blue-300 border border-blue-700 px-3 py-1 rounded-full inline-block mt-2 font-medium">
+                                        {candidato.partido}
+                                    </span>
+                                </div>
+                                <span className="text-xs bg-slate-700 px-3 py-1.5 rounded text-slate-300 font-mono">
+                                    ID: {candidato.id}
+                                </span>
+                            </div>
+
+                            {/* Sección de Clasificación de Sentimientos */}
+                            {candidato.desgloseSentimiento && (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-slate-200 mb-3">Clasificación de Comentarios en Redes</h3>
+                                    <div className="grid md:grid-cols-3 gap-4">
+                                        <div className="bg-emerald-950/40 border border-emerald-800 p-4 rounded-lg">
+                                            <span className="text-emerald-400 font-bold text-sm block mb-1">👍 Comentarios Positivos</span>
+                                            <p className="text-xs text-emerald-200">{candidato.desgloseSentimiento.positivos}</p>
+                                        </div>
+                                        <div className="bg-red-950/40 border border-red-800 p-4 rounded-lg">
+                                            <span className="text-red-400 font-bold text-sm block mb-1">👎 Comentarios Negativos</span>
+                                            <p className="text-xs text-red-200">{candidato.desgloseSentimiento.negativos}</p>
+                                        </div>
+                                        <div className="bg-amber-950/40 border border-amber-800 p-4 rounded-lg">
+                                            <span className="text-amber-400 font-bold text-sm block mb-1">💬 Comentarios Neutros</span>
+                                            <p className="text-xs text-amber-200">{candidato.desgloseSentimiento.neutros}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="grid md:grid-cols-2 gap-6 pt-2">
+                                <div className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
+                                    <h3 className="text-lg font-semibold text-red-400 mb-3">Prensa, Docencia y Registro</h3>
+                                    <ul className="space-y-2.5">
+                                        {candidato.noticias.map((noticia, index) => (
+                                            <li key={index} className="text-slate-300 text-sm flex items-start gap-2">
+                                                <span className="text-red-500 font-bold">•</span> {noticia}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <div className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
+                                    <h3 className="text-lg font-semibold text-blue-400 mb-3">Citas de Instagram y Redes</h3>
+                                    <ul className="space-y-2.5">
+                                        {candidato.redesSociales.map((red, index) => (
+                                            <li key={index} className="text-slate-300 text-sm flex items-start gap-2">
+                                                <span className="text-blue-400 font-bold">#</span> {red}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>

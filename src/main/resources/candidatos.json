@@ -1,0 +1,25 @@
+[
+  {
+    "id": "cand-001",
+    "name": "Dr. Carlos Eduardo Benítez",
+    "role": "Presidente BCP",
+    "party": "Técnico Independiente",
+    "photoUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a",
+    "sentimentCategory": "DIVIDIDO",
+    "summary": "Economista con 22 años en banca central...",
+    "stats": {
+      "positiveScore": 68,
+      "commentsScraped": 1420
+    },
+    "socialComments": [
+      {
+        "author": "MarcosV_Economia",
+        "platform": "Instagram",
+        "sourcePost": "Radio Monumental - Post Entrevista Presidente BCP",
+        "date": "Hace 2 días",
+        "text": "Trabajé como analista junior en la intendencia cuando él era director...",
+        "sentiment": "POSITIVO"
+      }
+    ]
+  }
+]
