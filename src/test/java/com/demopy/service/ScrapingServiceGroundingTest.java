@@ -32,7 +32,7 @@ class ScrapingServiceGroundingTest {
                     "groundingSupports": [
                       {
                         "segment": {"text": "El candidato ocupó un cargo público."},
-                        "groundingChunkIndices": [1]
+                        "groundingChunkIndices": [2]
                       }
                     ],
                     "searchEntryPoint": {
