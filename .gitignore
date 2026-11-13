@@ -13,4 +13,4 @@ target/
 
 # Runtime JSON data may contain personal information or testimonies.
 # Keep collected data out of Git; back it up separately.
- /data/
+/data/
