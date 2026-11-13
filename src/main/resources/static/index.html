@@ -105,6 +105,12 @@
                                 </div>
                             )}
 
+                            {(!candidato.fuentes || candidato.fuentes.length === 0) && (
+                                <div className="bg-amber-950/40 border border-amber-700 text-amber-200 p-4 rounded-lg text-sm">
+                                    Google no devolvió fuentes web para esta respuesta. No la consideres una investigación respaldada ni tomes sus afirmaciones como verificadas.
+                                </div>
+                            )}
+
                             {candidato.citas && candidato.citas.length > 0 && (
                                 <section className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
                                     <h3 className="text-lg font-semibold text-sky-400 mb-3">Afirmaciones vinculadas a sus fuentes</h3>
