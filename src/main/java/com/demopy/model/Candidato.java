@@ -11,10 +11,14 @@ public class Candidato {
     private List<String> redesSociales;
     private String sentimientoGeneral;
     private Map<String, String> desgloseSentimiento;
+    private List<Fuente> fuentes;
+    private String searchEntryPointHtml;
 
     public Candidato() {}
 
-    public Candidato(String id, String nombre, String partido, List<String> noticias, List<String> redesSociales, String sentimientoGeneral, Map<String, String> desgloseSentimiento) {
+    public Candidato(String id, String nombre, String partido, List<String> noticias,
+                     List<String> redesSociales, String sentimientoGeneral,
+                     Map<String, String> desgloseSentimiento) {
         this.id = id;
         this.nombre = nombre;
         this.partido = partido;
@@ -22,9 +26,9 @@ public class Candidato {
         this.redesSociales = redesSociales;
         this.sentimientoGeneral = sentimientoGeneral;
         this.desgloseSentimiento = desgloseSentimiento;
+        this.fuentes = List.of();
     }
 
-    // Getters y Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public String getNombre() { return nombre; }
@@ -39,4 +43,8 @@ public class Candidato {
     public void setSentimientoGeneral(String sentimientoGeneral) { this.sentimientoGeneral = sentimientoGeneral; }
     public Map<String, String> getDesgloseSentimiento() { return desgloseSentimiento; }
     public void setDesgloseSentimiento(Map<String, String> desgloseSentimiento) { this.desgloseSentimiento = desgloseSentimiento; }
+    public List<Fuente> getFuentes() { return fuentes; }
+    public void setFuentes(List<Fuente> fuentes) { this.fuentes = fuentes; }
+    public String getSearchEntryPointHtml() { return searchEntryPointHtml; }
+    public void setSearchEntryPointHtml(String searchEntryPointHtml) { this.searchEntryPointHtml = searchEntryPointHtml; }
 }
