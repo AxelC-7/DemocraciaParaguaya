@@ -123,12 +123,8 @@ public class ScrapingService {
 
         Candidato candidato = objectMapper.readValue(
                 textoRespuesta.substring(inicioJson, finJson + 1), Candidato.class);
-        aplicarMetadatosDeFuentes(candidate, candidateNode(candidate, root));
+        aplicarMetadatosDeFuentes(candidato, candidate);
         return candidato;
-    }
-
-    private JsonNode candidateNode(Candidato ignored, JsonNode root) {
-        return root.path("candidates").path(0);
     }
 
     void aplicarMetadatosDeFuentes(Candidato candidato, JsonNode candidate) {
