@@ -1,6 +1,7 @@
 package com.demopy.service;
 
 import com.demopy.model.Candidato;
+import com.demopy.model.Fuente;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,13 +10,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class ScrapingService {
-    @Value("${gemini.api.key:}")
+    @Value("\${gemini.api.key:}")
     private String apiKey;
+
     private final GeminiModelDiscoveryService modelDiscoveryService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -37,32 +41,37 @@ public class ScrapingService {
         }
 
         String prompt = """
-            Actúa como un analista de transparencia política especializado en Paraguay.
-            Investiga al siguiente candidato o figura pública: "%s".
+            Investiga a "%s", figura pública o candidato de Paraguay, usando búsqueda web.
+            Prioriza fuentes primarias y medios periodísticos reconocidos. Busca información
+            reciente y también antecedentes relevantes. Distingue hechos confirmados,
+            alegaciones, opiniones y datos que no pudieron verificarse.
 
-            Cubre trayectoria académica y profesional, cargos públicos, noticias de prensa
-            y controversias documentadas. Incluye percepción ciudadana solo si tienes
-            acceso a publicaciones concretas y verificables.
+            No inventes hechos, fechas, citas, procesos judiciales ni fuentes. No atribuyas
+            afiliaciones o cargos actuales sin respaldo. Si hay homónimos, explica la duda
+            y no mezcles sus antecedentes. No afirmes haber leído comentarios de redes
+            sociales ni hagas análisis de sentimiento: esta aplicación no recopila comentarios.
+            En caso de no hallar evidencia suficiente, dilo expresamente.
 
-            No inventes noticias, citas, enlaces, procesos ni datos biográficos. Si no puedes
-            verificar un dato, indícalo como no disponible. No afirmes haber consultado redes
-            sociales si no tienes acceso a publicaciones concretas. No presentes porcentajes
-            de sentimiento como estadísticas si no existe una muestra identificable y suficiente.
-
-            Responde únicamente con un objeto JSON válido con esta estructura:
+            Devuelve únicamente un objeto JSON válido con esta estructura:
             {
               "id": "py-2026",
-              "nombre": "Nombre completo del candidato",
-              "partido": "Cargo actual, postulación o sector asociado; indicar si no se pudo verificar",
-              "noticias": ["Hecho o noticia con fuente y fecha, o indicar que no fue verificado"],
-              "redesSociales": ["Comentario verificable con plataforma y contexto, o indicar que no hay datos verificables"],
-              "sentimientoGeneral": "Favorable / Mixto / Crítico / No determinado",
+              "nombre": "Nombre de la persona investigada",
+              "partido": "Partido, cargo o afiliación solo si se pudo verificar; de lo contrario indicar No verificado",
+              "noticias": [
+                "Resumen breve de un hecho verificable, indicando fecha y contexto"
+              ],
+              "redesSociales": [
+                "No se recopilan comentarios de redes sociales en esta versión"
+              ],
+              "sentimientoGeneral": "No evaluado",
               "desgloseSentimiento": {
-                "positivos": "No estimable sin muestra verificable",
-                "negativos": "No estimable sin muestra verificable",
-                "neutros": "No estimable sin muestra verificable"
+                "positivos": "No evaluado",
+                "negativos": "No evaluado",
+                "neutros": "No evaluado"
               }
             }
+            No incluyas URLs inventadas en el JSON. Las fuentes se obtendrán de los metadatos
+            de Google Search que devuelve la API.
             """.formatted(nombreCandidato);
 
         String ultimoError = "No se encontraron modelos disponibles.";
@@ -85,8 +94,10 @@ public class ScrapingService {
 
     private Candidato ejecutarPeticionGemini(String url, String prompt) throws Exception {
         Map<String, Object> requestBody = Map.of(
-                "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt))))
+                "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))),
+                "tools", List.of(Map.of("google_search", Map.of()))
         );
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("x-goog-api-key", apiKey);
@@ -94,7 +105,8 @@ public class ScrapingService {
 
         ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
         JsonNode root = objectMapper.readTree(response.getBody());
-        JsonNode parts = root.path("candidates").path(0).path("content").path("parts");
+        JsonNode candidate = root.path("candidates").path(0);
+        JsonNode parts = candidate.path("content").path("parts");
         if (!parts.isArray() || parts.isEmpty() || !parts.get(0).hasNonNull("text")) {
             throw new IllegalStateException("Gemini devolvió una respuesta sin contenido de texto.");
         }
@@ -107,15 +119,46 @@ public class ScrapingService {
         if (inicioJson < 0 || finJson <= inicioJson) {
             throw new IllegalStateException("Gemini no devolvió un objeto JSON válido.");
         }
-        return objectMapper.readValue(textoRespuesta.substring(inicioJson, finJson + 1), Candidato.class);
+
+        Candidato candidato = objectMapper.readValue(
+                textoRespuesta.substring(inicioJson, finJson + 1), Candidato.class);
+        aplicarMetadatosDeFuentes(candidate, candidateNode(candidate, root));
+        return candidato;
+    }
+
+    private JsonNode candidateNode(Candidato ignored, JsonNode root) {
+        return root.path("candidates").path(0);
+    }
+
+    void aplicarMetadatosDeFuentes(Candidato candidato, JsonNode candidate) {
+        JsonNode metadata = candidate.path("groundingMetadata");
+        JsonNode chunks = metadata.path("groundingChunks");
+        Map<String, Fuente> fuentesUnicas = new LinkedHashMap<>();
+
+        if (chunks.isArray()) {
+            for (JsonNode chunk : chunks) {
+                JsonNode web = chunk.path("web");
+                String url = web.path("uri").asText("");
+                String titulo = web.path("title").asText("");
+                if (url.startsWith("https://") || url.startsWith("http://")) {
+                    fuentesUnicas.putIfAbsent(url, new Fuente(
+                            titulo.isBlank() ? url : titulo, url));
+                }
+            }
+        }
+        candidato.setFuentes(new ArrayList<>(fuentesUnicas.values()));
+
+        String searchSuggestions = metadata.path("searchEntryPoint")
+                .path("renderedContent").asText(null);
+        candidato.setSearchEntryPointHtml(searchSuggestions);
     }
 
     private Candidato construirError(String nombreCandidato, String detalle) {
         return new Candidato(
                 "error-api", nombreCandidato, "Error en consulta IA",
                 List.of(detalle), List.of("No se dispone de información verificable."),
-                "No determinado",
-                Map.of("positivos", "No estimable", "negativos", "No estimable", "neutros", "No estimable")
+                "No evaluado",
+                Map.of("positivos", "No evaluado", "negativos", "No evaluado", "neutros", "No evaluado")
         );
     }
 }
