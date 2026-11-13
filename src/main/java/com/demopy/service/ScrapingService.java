@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Service
 public class ScrapingService {
-    @Value("\${gemini.api.key:}")
+    @Value("${gemini.api.key:}")
     private String apiKey;
     private final GeminiModelDiscoveryService modelDiscoveryService;
     private final RestTemplate restTemplate = new RestTemplate();
