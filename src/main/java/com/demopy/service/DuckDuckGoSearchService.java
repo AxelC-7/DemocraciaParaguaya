@@ -36,8 +36,10 @@ public class DuckDuckGoSearchService {
                 .maxBodySize(1024 * 1024)
                 .get();
 
+        System.out.println("[Recolector] DuckDuckGo HTTP OK; título: " + doc.title());
         Map<String, ResultadoBusqueda> unicos = new LinkedHashMap<>();
         Elements resultados = doc.select(".result");
+        System.out.println("[Recolector] Contenedores .result: " + resultados.size());
         for (Element resultado : resultados) {
             Element enlace = resultado.select(".result__title a, .result__a").first();
             if (enlace == null) continue;
@@ -51,7 +53,10 @@ public class DuckDuckGoSearchService {
             }
             if (unicos.size() >= limite) break;
         }
-        return new ArrayList<>(unicos.values());
+        List<ResultadoBusqueda> encontrados = new ArrayList<>(unicos.values());
+        System.out.println("[Recolector] Enlaces válidos: " + encontrados.size());
+        if (encontrados.isEmpty()) throw new IOException("DuckDuckGo respondió, pero no se reconocieron resultados. Puede haber cambiado el HTML o mostrado un bloqueo.");
+        return encontrados;
     }
 
     private String resolverUrl(String href) {
