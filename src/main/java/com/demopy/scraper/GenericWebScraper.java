@@ -75,24 +75,24 @@ public class GenericWebScraper {
     }
 
     private String meta(Document doc, String clave) {
-        Element e = doc.selectFirst("meta[property=" + clave + "], meta[name=" + clave + "]");
+        Element e = doc.select("meta[property=" + clave + "], meta[name=" + clave + "]").first();
         return e == null ? null : e.attr("content").trim();
     }
 
     private String texto(Document doc, String selector) {
-        Element e = doc.selectFirst(selector);
+        Element e = doc.select(selector).first();
         return e == null ? null : e.text().trim();
     }
 
     private String contenido(Document doc, String selector) {
-        Element e = doc.selectFirst(selector);
+        Element e = doc.select(selector).first();
         if (e == null) return null;
         String value = e.attr("datetime");
         return value.isBlank() ? e.text().trim() : value;
     }
 
     private String obtenerCanonical(Document doc, String original) {
-        Element e = doc.selectFirst("link[rel=canonical]");
+        Element e = doc.select("link[rel=canonical]").first();
         if (e == null || e.attr("href").isBlank()) return original;
         try {
             return URI.create(original).resolve(e.attr("href")).toString();
