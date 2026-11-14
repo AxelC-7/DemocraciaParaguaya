@@ -58,7 +58,9 @@ public class NewsCollectionService {
                 contenidoService.guardarNoticia(noticia);
                 recolectadas.putIfAbsent(noticia.getId(), noticia);
             } catch (Exception ex) {
-                errores.add(resultado.getUrl() + " -> " + ex.getClass().getSimpleName());
+                String detalle = resultado.getUrl() + " -> " + ex.getClass().getSimpleName() + ": " + (ex.getMessage() == null ? "sin detalle" : ex.getMessage());
+                errores.add(detalle);
+                System.err.println("[Recolector] " + detalle);
             }
         }
 
@@ -69,6 +71,11 @@ public class NewsCollectionService {
                 "errores", errores,
                 "fecha", java.time.Instant.now().toString()
         ));
+        System.out.println("[Recolector] Noticias guardadas: " + recolectadas.size() + "; páginas fallidas: " + errores.size());
+        if (recolectadas.isEmpty()) {
+            String detalle = errores.isEmpty() ? "La búsqueda no devolvió resultados." : "Se encontraron " + resultados.size() + " resultados, pero ninguna página pudo extraerse. Primer error: " + errores.get(0);
+            throw new IOException(detalle);
+        }
         return new ArrayList<>(recolectadas.values());
     }
 
