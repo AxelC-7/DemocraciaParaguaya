@@ -39,12 +39,12 @@ public class DuckDuckGoSearchService {
         Map<String, ResultadoBusqueda> unicos = new LinkedHashMap<>();
         Elements resultados = doc.select(".result");
         for (Element resultado : resultados) {
-            Element enlace = resultado.selectFirst(".result__title a, .result__a");
+            Element enlace = resultado.select(".result__title a, .result__a").first();
             if (enlace == null) continue;
             String url = resolverUrl(enlace.attr("href"));
             if (!(url.startsWith("http://") || url.startsWith("https://"))) continue;
             String titulo = enlace.text().trim();
-            Element fragmento = resultado.selectFirst(".result__snippet");
+            Element fragmento = resultado.select(".result__snippet").first();
             String resumen = fragmento == null ? "" : fragmento.text().trim();
             if (!titulo.isBlank()) {
                 unicos.putIfAbsent(url, new ResultadoBusqueda(titulo, url, resumen, "DuckDuckGo HTML"));
