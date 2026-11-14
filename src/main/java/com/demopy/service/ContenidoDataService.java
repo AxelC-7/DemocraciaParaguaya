@@ -27,6 +27,20 @@ public class ContenidoDataService {
             noticia.getPersonasRelacionadas().forEach(this::validarId);
         }
         storage.guardar("noticias/" + noticia.getId() + ".json", noticia);
+        actualizarIndiceNoticias(noticia);
+    }
+
+    public List<Noticia> listarNoticias() throws IOException {
+        String indice = "noticias/indice.json";
+        if (!storage.existe(indice)) return new ArrayList<>();
+        return storage.leer(indice, new TypeReference<List<Noticia>>() {});
+    }
+
+    private void actualizarIndiceNoticias(Noticia noticia) throws IOException {
+        List<Noticia> noticias = new ArrayList<>(listarNoticias());
+        noticias.removeIf(actual -> noticia.getId().equals(actual.getId()));
+        noticias.add(noticia);
+        storage.guardar("noticias/indice.json", noticias);
     }
 
     public Noticia obtenerNoticia(String noticiaId) throws IOException {
