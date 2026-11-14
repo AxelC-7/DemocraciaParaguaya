@@ -45,7 +45,7 @@ public class NewsCollectionController {
             ));
         } catch (IOException ex) {
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                    .body(Map.of("error", "No se pudo completar la búsqueda o guardar los resultados."));
+                    .body(Map.of("error", ex.getMessage() == null ? "No se pudo completar la recolección." : ex.getMessage()));
         }
     }
 
