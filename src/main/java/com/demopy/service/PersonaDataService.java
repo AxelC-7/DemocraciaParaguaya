@@ -27,6 +27,20 @@ public class PersonaDataService {
         if (persona == null) throw new IllegalArgumentException("La persona es obligatoria.");
         validarId(persona.getId());
         storage.guardar(ruta(persona.getId(), "perfil.json"), persona);
+        actualizarIndice(persona);
+    }
+
+    public List<Persona> listarPersonas() throws IOException {
+        String indice = "personas/indice.json";
+        if (!storage.existe(indice)) return new ArrayList<>();
+        return storage.leer(indice, new TypeReference<List<Persona>>() {});
+    }
+
+    private void actualizarIndice(Persona persona) throws IOException {
+        List<Persona> personas = new ArrayList<>(listarPersonas());
+        personas.removeIf(actual -> persona.getId().equals(actual.getId()));
+        personas.add(persona);
+        storage.guardar("personas/indice.json", personas);
     }
 
     public Persona obtenerPersona(String personaId) throws IOException {
