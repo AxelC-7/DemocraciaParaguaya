@@ -1,197 +1,56 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Democracia Paraguaya - Investigación pública</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Democracia Paraguaya - Noticias</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
-    <div id="root"></div>
-
-    <script type="text/babel">
-        function App() {
-            const [nombre, setNombre] = React.useState("Jorge Schreiner");
-            const [candidato, setCandidato] = React.useState(null);
-            const [loading, setLoading] = React.useState(false);
-            const [error, setError] = React.useState(null);
-
-            const buscarCandidato = async (e) => {
-                e.preventDefault();
-                setLoading(true);
-                setError(null);
-                try {
-                    const response = await fetch(`/api/candidatos/buscar?nombre=${encodeURIComponent(nombre)}`);
-                    if (!response.ok) throw new Error("No se pudo conectar con el servidor.");
-                    const data = await response.json();
-                    setCandidato(data);
-                } catch (err) {
-                    setError(err.message);
-                    setCandidato(null);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            return (
-                <div className="max-w-5xl mx-auto p-6">
-                    <header className="text-center my-8">
-                        <div className="flex justify-center items-center gap-2 mb-2">
-                            <span className="text-3xl">🇵🇾</span>
-                            <h1 className="text-4xl font-extrabold text-red-500 tracking-tight">Democracia Paraguaya</h1>
-                        </div>
-                        <p className="text-slate-400">Consulta de información pública con búsqueda web. Revisa las fuentes: la IA puede equivocarse y no sustituye una verificación periodística.</p>
-                    </header>
-
-                    <div className="bg-slate-800 p-6 rounded-xl shadow-xl mb-8 border border-slate-700">
-                        <form onSubmit={buscarCandidato} className="flex gap-4">
-                            <input 
-                                type="text" 
-                                value={nombre} 
-                                onChange={(e) => setNombre(e.target.value)}
-                                placeholder="Nombre de cualquier candidato o figura pública..."
-                                className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-red-500"
-                            />
-                            <button 
-                                type="submit"
-                                className="bg-red-600 hover:bg-red-500 text-white font-semibold px-6 py-3 rounded-lg transition shadow-md"
-                            >
-                                {loading ? "Analizando IA..." : "Rastrear Candidato"}
-                            </button>
-                        </form>
-                    </div>
-
-                    {error && (
-                        <div className="bg-red-900/40 border border-red-500 text-red-200 p-4 rounded-xl mb-6">
-                            {error}
-                        </div>
-                    )}
-
-                    {candidato && (
-                        <div className="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700 space-y-6">
-                            <div className="flex justify-between items-start border-b border-slate-700 pb-4">
-                                <div>
-                                    <h2 className="text-3xl font-bold text-white">{candidato.nombre}</h2>
-                                    <span className="text-sm bg-blue-900/60 text-blue-300 border border-blue-700 px-3 py-1 rounded-full inline-block mt-2 font-medium">
-                                        {candidato.partido}
-                                    </span>
-                                </div>
-                                <span className="text-xs bg-slate-700 px-3 py-1.5 rounded text-slate-300 font-mono">
-                                    ID: {candidato.id}
-                                </span>
-                            </div>
-
-                            {/* Sección de Clasificación de Sentimientos */}
-                            {candidato.desgloseSentimiento && candidato.sentimientoGeneral !== "No evaluado" && (
-                                <div>
-                                    <h3 className="text-lg font-semibold text-slate-200 mb-3">Indicadores de sentimiento (no estadísticos)</h3>
-                                    <div className="grid md:grid-cols-3 gap-4">
-                                        <div className="bg-emerald-950/40 border border-emerald-800 p-4 rounded-lg">
-                                            <span className="text-emerald-400 font-bold text-sm block mb-1">👍 Comentarios Positivos</span>
-                                            <p className="text-xs text-emerald-200">{candidato.desgloseSentimiento.positivos}</p>
-                                        </div>
-                                        <div className="bg-red-950/40 border border-red-800 p-4 rounded-lg">
-                                            <span className="text-red-400 font-bold text-sm block mb-1">👎 Comentarios Negativos</span>
-                                            <p className="text-xs text-red-200">{candidato.desgloseSentimiento.negativos}</p>
-                                        </div>
-                                        <div className="bg-amber-950/40 border border-amber-800 p-4 rounded-lg">
-                                            <span className="text-amber-400 font-bold text-sm block mb-1">💬 Comentarios Neutros</span>
-                                            <p className="text-xs text-amber-200">{candidato.desgloseSentimiento.neutros}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {(!candidato.fuentes || candidato.fuentes.length === 0) && (
-                                <div className="bg-amber-950/40 border border-amber-700 text-amber-200 p-4 rounded-lg text-sm">
-                                    Google no devolvió fuentes web para esta respuesta. No la consideres una investigación respaldada ni tomes sus afirmaciones como verificadas.
-                                </div>
-                            )}
-
-                            {candidato.citas && candidato.citas.length > 0 && (
-                                <section className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
-                                    <h3 className="text-lg font-semibold text-sky-400 mb-3">Afirmaciones vinculadas a sus fuentes</h3>
-                                    <ul className="space-y-3">
-                                        {candidato.citas.map((cita, index) => (
-                                            <li key={index} className="text-sm text-slate-300">
-                                                <p>{cita.texto}</p>
-                                                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
-                                                    {(cita.fuentes || []).map((fuente, sourceIndex) => (
-                                                        <a key={fuente.url || sourceIndex} href={fuente.url}
-                                                           target="_blank" rel="noopener noreferrer"
-                                                           className="text-xs text-sky-400 hover:text-sky-300 underline">
-                                                            {fuente.titulo || "Ver fuente"}
-                                                        </a>
-                                                    ))}
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </section>
-                            )}
-
-                            {candidato.fuentes && candidato.fuentes.length > 0 && (
-                                <section className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
-                                    <h3 className="text-lg font-semibold text-emerald-400 mb-3">Fuentes consultadas por Google Search</h3>
-                                    <ol className="space-y-2 list-decimal list-inside">
-                                        {candidato.fuentes.map((fuente, index) => (
-                                            <li key={fuente.url || index} className="text-sm text-slate-300">
-                                                <a href={fuente.url} target="_blank" rel="noopener noreferrer"
-                                                   className="text-sky-400 hover:text-sky-300 underline break-all">
-                                                    {fuente.titulo || fuente.url}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ol>
-                                </section>
-                            )}
-
-                            {candidato.searchEntryPointHtml && (
-                                <section className="bg-slate-900/60 p-4 rounded-lg border border-slate-700/80">
-                                    <h3 className="text-sm font-semibold text-slate-300 mb-2">Sugerencias de búsqueda de Google</h3>
-                                    <iframe
-                                        title="Sugerencias de búsqueda de Google"
-                                        srcDoc={candidato.searchEntryPointHtml}
-                                        sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
-                                        referrerPolicy="no-referrer"
-                                        className="w-full min-h-20 border-0 bg-white rounded"
-                                    />
-                                </section>
-                            )}
-
-                            <div className="grid md:grid-cols-2 gap-6 pt-2">
-                                <div className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
-                                    <h3 className="text-lg font-semibold text-red-400 mb-3">Noticias y antecedentes (resumen IA)</h3>
-                                    <ul className="space-y-2.5">
-                                        {candidato.noticias.map((noticia, index) => (
-                                            <li key={index} className="text-slate-300 text-sm flex items-start gap-2">
-                                                <span className="text-red-500 font-bold">•</span> {noticia}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-
-                                <div className="bg-slate-900/60 p-5 rounded-lg border border-slate-700/80">
-                                    <h3 className="text-lg font-semibold text-blue-400 mb-3">Redes sociales</h3>
-                                    <ul className="space-y-2.5">
-                                        {candidato.redesSociales.map((red, index) => (
-                                            <li key={index} className="text-slate-300 text-sm flex items-start gap-2">
-                                                <span className="text-blue-400 font-bold">#</span> {red}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        }
-
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-    </script>
-</body>
-</html>
+<body class="bg-slate-950 text-slate-100 min-h-screen"><div id="root"></div>
+<script type="text/babel">
+function App() {
+ const [consulta,setConsulta]=React.useState("Jorge Schreiner Paraguay");
+ const [limite,setLimite]=React.useState(5);
+ const [noticias,setNoticias]=React.useState([]);
+ const [cargando,setCargando]=React.useState(false);
+ const [error,setError]=React.useState("");
+ const [mensaje,setMensaje]=React.useState("");
+ async function buscar(e) {
+  e.preventDefault(); setCargando(true); setError(""); setMensaje(""); setNoticias([]);
+  try {
+   const r=await fetch("/api/recoleccion/noticias",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({consulta,limite:Number(limite)})});
+   const d=await r.json(); if(!r.ok) throw new Error(d.error||"Falló la recolección.");
+   setNoticias(d.noticias||[]); setMensaje("Noticias recolectadas: "+(d.cantidad??0));
+   if(!d.noticias||d.noticias.length===0) setError("La búsqueda no produjo noticias extraíbles. No se utilizó IA.");
+  } catch(e){setError(e.message);} finally{setCargando(false);}
+ }
+ async function cargarGuardadas(){
+  setCargando(true);setError("");setMensaje("");
+  try{const r=await fetch("/api/noticias");if(!r.ok)throw new Error("No se pudieron cargar las noticias.");const d=await r.json();setNoticias(d);setMensaje("Noticias almacenadas: "+d.length);}
+  catch(e){setError(e.message);}finally{setCargando(false);}
+ }
+ return <main className="max-w-5xl mx-auto p-5 md:p-8">
+  <header className="mb-8"><div className="text-3xl mb-2">🇵🇾</div><h1 className="text-3xl md:text-4xl font-bold text-red-400">Democracia Paraguaya</h1>
+  <p className="text-slate-400 mt-2">Recolección de noticias públicas mediante DuckDuckGo y extracción HTML. Esta pantalla no utiliza IA.</p></header>
+  <section className="bg-slate-900 border border-slate-800 rounded-xl p-5 mb-6">
+   <form onSubmit={buscar} className="space-y-4">
+    <label className="block text-sm text-slate-300">Persona, candidato o tema<input value={consulta} onChange={e=>setConsulta(e.target.value)} className="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg p-3" maxLength="200" required /></label>
+    <label className="block text-sm text-slate-300">Cantidad máxima<select value={limite} onChange={e=>setLimite(e.target.value)} className="mt-1 block bg-slate-950 border border-slate-700 rounded-lg p-3">{[3,5,8,10].map(n=><option key={n} value={n}>{n}</option>)}</select></label>
+    <div className="flex flex-wrap gap-3"><button disabled={cargando} className="bg-red-600 hover:bg-red-500 disabled:opacity-50 rounded-lg px-5 py-3 font-semibold">{cargando?"Buscando y extrayendo...":"Buscar noticias"}</button>
+    <button type="button" onClick={cargarGuardadas} disabled={cargando} className="bg-slate-700 hover:bg-slate-600 disabled:opacity-50 rounded-lg px-5 py-3">Ver noticias guardadas</button></div>
+   </form>
+  </section>
+  {mensaje&&<p className="text-emerald-300 mb-4">{mensaje}</p>}
+  {error&&<div className="bg-amber-950/50 border border-amber-700 text-amber-200 p-4 rounded-lg mb-5">{error}</div>}
+  {cargando&&<p className="text-slate-300">Consultando DuckDuckGo y descargando páginas...</p>}
+  <section className="space-y-4">{noticias.map(n=><article key={n.id} className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+   <h2 className="text-xl font-semibold">{n.titulo||"Sin título"}</h2><p className="text-xs text-slate-500 mt-1">{n.medio||"Fuente desconocida"} · {n.fechaPublicacion||"Fecha no identificada"}</p>
+   {n.resumen&&<p className="text-slate-300 mt-3">{n.resumen}</p>}{n.contenido&&<p className="text-slate-400 mt-3 text-sm">{n.contenido.slice(0,700)}{n.contenido.length>700?"…":""}</p>}
+   {n.url&&<a href={n.url} target="_blank" rel="noopener noreferrer" className="inline-block text-sky-400 underline mt-4">Abrir publicación original</a>}
+  </article>)}</section>
+ </main>;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script></body></html>
