@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import com.demopy.model.Fuente;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,10 @@ public class NewsCollectionService {
                 }
                 noticia.setId(hash(noticia.getUrl()));
                 noticia.setHashContenido(hash(noticia.getContenido() == null ? "" : noticia.getContenido()));
-                noticia.getFuentes().add(new com.demopy.model.Fuente(resultado.getTitulo(), resultado.getUrl()));
+                List<Fuente> fuentes = new ArrayList<>();
+                if (noticia.getFuentes() != null) fuentes.addAll(noticia.getFuentes());
+                fuentes.add(new Fuente(resultado.getTitulo(), resultado.getUrl()));
+                noticia.setFuentes(fuentes);
                 contenidoService.guardarNoticia(noticia);
                 recolectadas.putIfAbsent(noticia.getId(), noticia);
             } catch (Exception ex) {
