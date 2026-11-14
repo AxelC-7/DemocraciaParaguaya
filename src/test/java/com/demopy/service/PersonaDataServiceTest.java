@@ -39,6 +39,21 @@ class PersonaDataServiceTest {
 
         assertEquals("Jorge Schreiner", service.obtenerPersona("jorge-schreiner").getNombreCompleto());
         assertTrue(directorioTemporal.resolve("personas/jorge-schreiner/perfil.json").toFile().isFile());
+        assertEquals(1, service.listarPersonas().size());
+    }
+
+    @Test
+    void actualizarPerfilNoDuplicaElIndice() throws IOException {
+        Persona persona = new Persona();
+        persona.setId("jorge-schreiner");
+        persona.setNombreCompleto("Nombre inicial");
+        service.guardarPersona(persona);
+
+        persona.setNombreCompleto("Nombre actualizado");
+        service.guardarPersona(persona);
+
+        assertEquals(1, service.listarPersonas().size());
+        assertEquals("Nombre actualizado", service.listarPersonas().get(0).getNombreCompleto());
     }
 
     @Test
